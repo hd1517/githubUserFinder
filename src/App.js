@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Users from './components/users/Users';
@@ -11,19 +11,13 @@ import GithubState from './context/github/GithubState';
 import './App.css';
 
 const App = () => {
-  // const [users, setUsers] = useState([]);
-  // const [user, setUser] = useState({});
-  // const [repos, setRepos] = useState([]);
-  // const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState(null);
-
   return (
     <GithubState>
       <Router>
         <div className='App'>
           <Navbar />
           <div className='container'>
-            <Alert alert={alert} />
+            <Alert />
             <Switch>
               <Route
                 exact
@@ -31,9 +25,7 @@ const App = () => {
                 render={(props) => {
                   return (
                     <Fragment>
-                      <Search
-                        setAlert={(msg, type) => setAlert({ msg, type })}
-                      />
+                      <Search />
                       <Users />
                     </Fragment>
                   );

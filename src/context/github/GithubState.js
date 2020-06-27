@@ -8,6 +8,7 @@ import {
   CLEAR_USERS,
   GET_USER,
   GET_REPOS,
+  SET_ALERT,
 } from '../types';
 
 const GithubState = (props) => {
@@ -16,23 +17,31 @@ const GithubState = (props) => {
     user: {},
     repos: [],
     loading: false,
+    alert: null,
   };
 
   const [state, dispatch] = useReducer(GithubReducer, initialState);
 
   // Search Github users
   const searchUsers = (text) => {
-    //alert !== null && setAlert(null);
+    state.alert !== null && dispatch({ type: SET_ALERT, payload: null });
     setLoading();
     axios
       .get(
         `https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       )
       .then((res) => {
-        dispatch({
-          type: SEARCH_USERS,
-          payload: res.data.items,
-        });
+        if (res.data.items.length === 0) {
+          dispatch({
+            type: SET_ALERT,
+            payload: { msg: 'No user found with this name', type: 'light' },
+          });
+        } else {
+          dispatch({
+            type: SEARCH_USERS,
+            payload: res.data.items,
+          });
+        }
       });
   };
 
@@ -66,6 +75,14 @@ const GithubState = (props) => {
       });
   };
 
+  // Set Alert
+  const setAlert = (msg, type) => {
+    dispatch({
+      type: SET_ALERT,
+      payload: { msg, type },
+    });
+  };
+
   // Clear users from state
   const clearUsers = () => dispatch({ type: CLEAR_USERS });
 
@@ -79,10 +96,12 @@ const GithubState = (props) => {
         user: state.user,
         repos: state.repos,
         loading: state.loading,
+        alert: state.alert,
         searchUsers,
         getUser,
         getUserRepos,
         clearUsers,
+        setAlert,
       }}
     >
       {props.children}
