@@ -18,19 +18,6 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
 
-  // Get Github user details
-  const getUser = (username) => {
-    setLoading(true);
-    axios
-      .get(
-        `https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
-      )
-      .then((res) => {
-        setUser(res.data);
-        setLoading(false);
-      });
-  };
-
   // Get users repo
   const getUserRepos = (username) => {
     setLoading(true);
@@ -69,7 +56,7 @@ const App = () => {
                         showClear={users.length > 0 ? true : false}
                         setAlert={(msg, type) => setAlert({ msg, type })}
                       />
-                      <Users loading={loading} users={users} />
+                      <Users />
                     </Fragment>
                   );
                 }}
@@ -82,7 +69,6 @@ const App = () => {
                   return (
                     <User
                       {...props}
-                      getUser={getUser}
                       getUserRepos={getUserRepos}
                       user={user}
                       repos={repos}
