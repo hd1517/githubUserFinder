@@ -11,6 +11,12 @@ import {
   SET_ALERT,
 } from '../types';
 
+const github = axios.create({
+  baseURL: 'https://api.github.com',
+  timeout: 1000,
+  headers: { Authorization: process.env.REACT_APP_GITHUB_TOKEN },
+});
+
 const GithubState = (props) => {
   const initialState = {
     users: [],
@@ -26,47 +32,37 @@ const GithubState = (props) => {
   const searchUsers = (text) => {
     state.alert !== null && dispatch({ type: SET_ALERT, payload: null });
     setLoading();
-    axios
-      .get(
-        `https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
-      )
-      .then((res) => {
-        if (res.data.items.length === 0) {
-          dispatch({
-            type: SET_ALERT,
-            payload: { msg: 'No user found with this name', type: 'light' },
-          });
-        } else {
-          dispatch({
-            type: SEARCH_USERS,
-            payload: res.data.items,
-          });
-        }
-      });
+    github.get(`/search/users?q=${text}`).then((res) => {
+      if (res.data.items.length === 0) {
+        dispatch({
+          type: SET_ALERT,
+          payload: { msg: 'No user found with this name', type: 'light' },
+        });
+      } else {
+        dispatch({
+          type: SEARCH_USERS,
+          payload: res.data.items,
+        });
+      }
+    });
   };
 
   // Get Github user details
   const getUser = (username) => {
     setLoading();
-    axios
-      .get(
-        `https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
-      )
-      .then((res) => {
-        dispatch({
-          type: GET_USER,
-          payload: res.data,
-        });
+    github.get(`/users/${username}`).then((res) => {
+      dispatch({
+        type: GET_USER,
+        payload: res.data,
       });
+    });
   };
 
   // Get users repo
   const getUserRepos = (username) => {
     setLoading();
-    axios
-      .get(
-        `https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
-      )
+    github
+      .get(`/users/${username}/repos?per_page=5&sort=created:asc?`)
       .then((res) => {
         dispatch({
           type: GET_REPOS,
